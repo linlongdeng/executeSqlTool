@@ -16,24 +16,27 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class ApplicationWindow {
-	
+
 	private Logger logger = Logger.getLogger(ApplicationWindow.class);
-	
-	static{
-		
-		PropertyConfigurator.configure(ApplicationWindow.class.getResource("/conf/log4j.properties"));
+
+	static {
+
+		PropertyConfigurator.configure(ApplicationWindow.class
+				.getResource("/conf/log4j.properties"));
 	}
-	
 
 	protected Shell shell;
 	private Text text;
-	
+
 	private Display display;
-	
+
 	private Thread thread;
+
 	/**
 	 * Launch the application.
 	 * 
@@ -52,9 +55,9 @@ public class ApplicationWindow {
 	 * Open the window.
 	 */
 	public void open() {
-		display= Display.getDefault();
+		display = Display.getDefault();
 		createContents();
-		//居中
+		// 居中
 		shell.setLocation(display.getClientArea().width / 2
 				- shell.getShell().getSize().x / 2,
 				display.getClientArea().height / 2 - shell.getSize().y / 2);
@@ -99,9 +102,9 @@ public class ApplicationWindow {
 				fileDialog.setFilterExtensions(new String[] { "*.sql" });
 				fileDialog.setFilterNames(new String[] { "Sql Files (*.sql)" });
 				String fileName = fileDialog.open();
-				if(fileName != null){
+				if (fileName != null) {
 					text.setText(fileName);
-					
+
 				}
 
 			}
@@ -121,40 +124,47 @@ public class ApplicationWindow {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				final String fileName = text.getText();
-				if("".equals(fileName)){
+				if ("".equals(fileName)) {
 					UtilTools.showInfoMessageBox("脚本文件不能为空", shell);
 					return;
 				}
-								//执行脚本文件
-					thread = new Thread( new Runnable() {
-						public void run() {
-							try {
-								display.syncExec(new Runnable() {
-									public void run() {
-										btnNewButton_1.setText("执行中");
-										btnNewButton_1.setEnabled(false);
-										
-									}
-								});
-								ExecuteSql.getInstance().execute(fileName);
-								
-								display.syncExec(new Runnable() {
-									public void run() {
-										btnNewButton_1.setText("开始");
-										btnNewButton_1.setEnabled(true);
-										
-									}
-								});
-								
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								logger.error("执行SQL脚本文件出错", e);
-							}
-							
+				// 执行脚本文件
+				thread = new Thread(new Runnable() {
+					public void run() {
+						try {
+							display.syncExec(new Runnable() {
+								public void run() {
+									btnNewButton_1.setText("执行中");
+									btnNewButton_1.setEnabled(false);
+
+								}
+							});
+							ExecuteSql.getInstance().execute(fileName);
+
+							display.syncExec(new Runnable() {
+								public void run() {
+									btnNewButton_1.setText("开始");
+									btnNewButton_1.setEnabled(true);
+
+								}
+							});
+
+						} catch (Exception e) {
+							//由于和UI线程不是同一线程，要用这种方式来打开提示框
+							display.syncExec(new Runnable() {
+								public void run() {
+									UtilTools.showInfoMessageBox(
+											"程序执行出错，请查询日志文件", shell);
+
+								}
+							});
+							logger.error("执行SQL脚本文件出错", e);
 						}
-					});
-					thread.start();
-					
+
+					}
+				});
+				thread.start();
+
 			}
 		});
 		FormData fd_btnNewButton_1 = new FormData();
@@ -168,14 +178,7 @@ public class ApplicationWindow {
 		button_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(!btnNewButton_1.isEnabled()){
-					int answer = UtilTools.showConfirmMessageBox("程序正在执行中，是否要强制退出？",shell);
-					if(answer == SWT.YES){
-						shell.close();
-						System.exit(0);
-						
-					}
-				}
+				shell.close();
 			}
 		});
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.NORMAL));
@@ -185,6 +188,26 @@ public class ApplicationWindow {
 		fd_button_1.top = new FormAttachment(text, 71);
 		button_1.setLayoutData(fd_button_1);
 		button_1.setText("\u9000 \u51FA");
+		shell.addShellListener(new ShellAdapter() {
+
+			@Override
+			public void shellClosed(ShellEvent e) {
+
+				if (!btnNewButton_1.isEnabled()) {
+					int answer = UtilTools.showConfirmMessageBox(
+							"程序正在执行中，是否要强制退出？", shell);
+					if (answer == SWT.YES) {
+						e.doit = true;
+						System.exit(0);
+					}
+					// 否则不让退出
+					else {
+						e.doit = false;
+					}
+				}
+			}
+
+		});
 
 	}
 }
