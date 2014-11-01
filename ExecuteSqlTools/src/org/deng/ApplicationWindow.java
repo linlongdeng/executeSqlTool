@@ -34,8 +34,6 @@ public class ApplicationWindow {
 	private Display display;
 	
 	private Thread thread;
-
-	private  Button button;
 	/**
 	 * Launch the application.
 	 * 
@@ -134,7 +132,6 @@ public class ApplicationWindow {
 								display.syncExec(new Runnable() {
 									public void run() {
 										btnNewButton_1.setText("执行中");
-										button.setEnabled(true);
 										btnNewButton_1.setEnabled(false);
 										
 									}
@@ -165,42 +162,27 @@ public class ApplicationWindow {
 		fd_btnNewButton_1.top = new FormAttachment(text, 71);
 		btnNewButton_1.setLayoutData(fd_btnNewButton_1);
 		btnNewButton_1.setText("\u5F00 \u59CB");
-
-		 button= new Button(shell, SWT.NONE);
-		button.setEnabled(false);
 		fd_btnNewButton_1.right = new FormAttachment(100, -329);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(thread != null && thread.isAlive()){
-					ExecuteSql.getInstance().stop();
-					btnNewButton_1.setText("开始");
-					btnNewButton_1.setEnabled(true);
-					button.setEnabled(false);
-				}
-			}
-		});
-		button.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.NORMAL));
-		FormData fd_button = new FormData();
-		fd_button.left = new FormAttachment(btnNewButton_1, 10);
-		fd_button.top = new FormAttachment(text, 71);
-		button.setLayoutData(fd_button);
-		button.setText(" \u4E2D \u6B62");
 
 		Button button_1 = new Button(shell, SWT.NONE);
 		button_1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				shell.close();
-				System.exit(0);
+				if(!btnNewButton_1.isEnabled()){
+					int answer = UtilTools.showConfirmMessageBox("程序正在执行中，是否要强制退出？",shell);
+					if(answer == SWT.YES){
+						shell.close();
+						System.exit(0);
+						
+					}
+				}
 			}
 		});
-		fd_button.right = new FormAttachment(100, -247);
 		button_1.setFont(SWTResourceManager.getFont("微软雅黑", 13, SWT.NORMAL));
 		FormData fd_button_1 = new FormData();
-		fd_button_1.right = new FormAttachment(text, 0, SWT.RIGHT);
+		fd_button_1.right = new FormAttachment(100, -158);
+		fd_button_1.left = new FormAttachment(btnNewButton_1, 101);
 		fd_button_1.top = new FormAttachment(text, 71);
-		fd_button_1.left = new FormAttachment(button, 19);
 		button_1.setLayoutData(fd_button_1);
 		button_1.setText("\u9000 \u51FA");
 

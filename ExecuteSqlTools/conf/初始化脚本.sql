@@ -5,7 +5,7 @@ delete from yhzhzzzz ;
 --删除卡帐户表
 delete from yhkzhzzz ;
 --删除充值表
-delete form jykczjiz ;
+delete from jykczjiz ;
 --删除消费表
 delete from jyxflszz;
 --删除借车表
@@ -40,5 +40,7 @@ Insert into jyrhmdls
 begin
 PROC_JYHMDSJ;
 end;
-
+/
+commit;
+exit;
 
