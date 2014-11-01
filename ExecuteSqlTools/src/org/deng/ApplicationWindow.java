@@ -155,6 +155,8 @@ public class ApplicationWindow {
 								public void run() {
 									UtilTools.showInfoMessageBox(
 											"程序执行出错，请查询日志文件", shell);
+									btnNewButton_1.setText("开始");
+									btnNewButton_1.setEnabled(true);
 
 								}
 							});
