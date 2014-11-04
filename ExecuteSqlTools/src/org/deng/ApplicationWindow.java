@@ -1,9 +1,12 @@
 package org.deng;
 
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -36,6 +39,8 @@ public class ApplicationWindow {
 	private Display display;
 
 	private Thread thread;
+	
+	private OracleDialog oracleDialog;
 
 	/**
 	 * Launch the application.
@@ -74,11 +79,12 @@ public class ApplicationWindow {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shell = new Shell();
+		shell = new Shell(SWT.DIALOG_TRIM);
 		shell.setSize(540, 302);
 		shell.setText("SWT Application");
 		shell.setLayout(new FormLayout());
-
+		//创建菜单
+		createMenu(shell);
 		Label label = new Label(shell, SWT.NONE);
 		FormData fd_label = new FormData();
 		fd_label.top = new FormAttachment(0, 28);
@@ -211,5 +217,40 @@ public class ApplicationWindow {
 
 		});
 
+	}
+	
+	public void createMenu(final Shell shell){
+		Menu menu = new Menu(shell, SWT.BAR);
+		MenuItem menuItem = new MenuItem(menu,SWT.CASCADE);
+		menuItem.setText("设置");
+		Menu confureMenu = new Menu(shell, SWT.DROP_DOWN);
+		menuItem.setMenu(confureMenu);;
+		MenuItem confiureItem = new MenuItem(confureMenu, SWT.PUSH);
+		confiureItem.setText("配置数据库");
+		confiureItem.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(oracleDialog == null){
+					oracleDialog = new OracleDialog(shell,SWT.DIALOG_TRIM);
+				}
+				oracleDialog.open();
+			}
+			
+			
+		});
+		MenuItem exitItem = new MenuItem(confureMenu, SWT.PUSH);
+		exitItem.setText("退出");
+		exitItem.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.close();
+			}
+
+		
+		});
+		shell.setMenuBar(menu);
+		
 	}
 }
